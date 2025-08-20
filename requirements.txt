@@ -1,0 +1,7 @@
+# requirements.txt
+Flask
+pandas
+plotly
+openpyxl
+psycopg2-binary
+gunicorn

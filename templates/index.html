@@ -1,0 +1,221 @@
+<!-- /PRODUCAO-FLASK/templates/index.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔩 Controle de Produção de Cabeçotes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔩 Controle de Produção de Cabeçotes</h1>
+
+        <!-- Seção para exibir mensagens (flash) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages">
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Abas -->
+        <div class="tabs">
+            <button class="tab-link {% if active_tab == 'registro' %}active{% endif %}" onclick="openTab(event, 'registro')">📋 Registrar Produção</button>
+            <button class="tab-link {% if active_tab == 'dashboard' %}active{% endif %}" onclick="openTab(event, 'dashboard')">📊 Dashboard & Histórico</button>
+        </div>
+
+        <!-- Conteúdo da Aba de Registro -->
+        <div id="registro" class="tab-content" style="display: {% if active_tab == 'registro' %}block{% else %}none{% endif %};">
+            <div class="card">
+                <h2>Registrar Novo Lote de Produção</h2>
+                <form action="{{ url_for('registrar') }}" method="post" class="registro-form">
+                    <div class="form-group">
+                        <label for="modelo">Modelo de Cabeçote</label>
+                        <select name="modelo" id="modelo" required>
+                            <option value="" disabled selected>Selecione o modelo...</option>
+                            {% for modelo in modelos %}
+                            <option value="{{ modelo }}">{{ modelo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <hr>
+                    <h3>Etapas de Produção</h3>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label for="op_montagem">Operador Montagem</label>
+                            <select name="op_montagem" id="op_montagem">
+                                <option value="" selected></option>
+                                {% for op in operadores %}<option value="{{ op }}">{{ op }}</option>{% endfor %}
+                            </select>
+                            <label for="qty_montado">Qtd. Montada</label>
+                            <input type="number" name="qty_montado" id="qty_montado" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="op_pintura">Operador Pintura</label>
+                            <select name="op_pintura" id="op_pintura">
+                                <option value="" selected></option>
+                                {% for op in operadores %}<option value="{{ op }}">{{ op }}</option>{% endfor %}
+                            </select>
+                            <label for="qty_pintado">Qtd. Pintada</label>
+                            <input type="number" name="qty_pintado" id="qty_pintado" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="op_teste">Operador Teste</label>
+                            <select name="op_teste" id="op_teste">
+                                <option value="" selected></option>
+                                {% for op in operadores %}<option value="{{ op }}">{{ op }}</option>{% endfor %}
+                            </select>
+                            <label for="qty_testado">Qtd. Testada</label>
+                            <input type="number" name="qty_testado" id="qty_testado" min="0" value="0">
+                        </div>
+                    </div>
+                    <hr>
+                    <h3>Retrabalho e Observações</h3>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="op_retrabalho">Operador Retrabalho</label>
+                            <select name="op_retrabalho" id="op_retrabalho">
+                                <option value="" selected></option>
+                                {% for op in operadores %}<option value="{{ op }}">{{ op }}</option>{% endfor %}
+                            </select>
+                            <label for="retrabalho">Qtd. Retrabalho</label>
+                            <input type="number" name="retrabalho" id="retrabalho" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="observacao">Observação (opcional)</label>
+                            <textarea name="observacao" id="observacao" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-success">✅ Registrar Lote de Produção</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Conteúdo da Aba de Dashboard -->
+        <div id="dashboard" class="tab-content" style="display: {% if active_tab == 'dashboard' %}block{% else %}none{% endif %};">
+            <div class="card">
+                <h2>Análise de Produção</h2>
+                <form action="{{ url_for('dashboard') }}" method="post" class="filter-form">
+                    <button type="submit" name="periodo" value="hoje">Hoje</button>
+                    <button type="submit" name="periodo" value="7dias">Últimos 7 dias</button>
+                    <button type="submit" name="periodo" value="mes">Este Mês</button>
+                    <button type="submit" name="periodo" value="completo">Histórico Completo</button>
+                    <input type="date" name="data_especifica" onchange="this.form.submit()">
+                </form>
+                <h3>Exibindo período: {{ period_name }}</h3>
+                <div class="metrics-grid">
+                    <div class="metric"><span>Peças Montadas</span>{{ metrics.total_montado }}</div>
+                    <div class="metric"><span>Peças Pintadas</span>{{ metrics.total_pintado }}</div>
+                    <div class="metric"><span>Produção Final (Testadas)</span>{{ metrics.total_testado }}</div>
+                    <div class="metric metric-danger"><span>Taxa de Retrabalho</span>{{ metrics.taxa_retrabalho }} <small>{{ metrics.total_retrabalho_abs }}</small></div>
+                </div>
+            </div>
+
+            <div class="card chart-grid">
+                <div class="chart-toggle-buttons">
+                    <button class="chart-toggle-btn active" onclick="togglePieChart('producao_pie')">Produção por Modelo (%)</button>
+                    <button class="chart-toggle-btn" onclick="togglePieChart('retrabalho_pie')">Retrabalho por Modelo (%)</button>
+                </div>
+                <div id="producao_pie" class="chart-container pie-chart-container" style="display: block;">
+                    {% if fig_pie_html %}
+                        {{ fig_pie_html | safe }}
+                    {% else %}
+                        <p>Nenhum dado para exibir no gráfico de Produção por Modelo.</p>
+                    {% endif %}
+                </div>
+                <div id="retrabalho_pie" class="chart-container pie-chart-container" style="display: none;">
+                    {% if fig_pie_retrabalho_html %}
+                        {{ fig_pie_retrabalho_html | safe }}
+                    {% else %}
+                        <p>Nenhum dado para exibir no gráfico de Retrabalho por Modelo.</p>
+                    {% endif %}
+                </div>
+                <div class="chart-container bar-chart-container">
+                    {% if fig_bar_html %}
+                        {{ fig_bar_html | safe }}
+                    {% else %}
+                        <p>Nenhum dado para exibir no gráfico de barras.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card">
+                <h2>Histórico Detalhado</h2>
+                {% if historico %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                {% for col in historico[0].keys() %}
+                                <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in historico %}
+                            <tr>
+                                {% for value in row.values() %}
+                                <td>{{ value }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('exportar_excel') }}" class="btn">📥 Exportar para Excel</a>
+                    <form action="{{ url_for('excluir', id=0) }}" method="post" id="deleteForm" style="display: inline-block;">
+                        <select name="id_to_delete" onchange="document.getElementById('deleteForm').action = '/excluir/' + this.value">
+                            <option value="" disabled selected>ID para excluir</option>
+                            {% for id in all_ids %}
+                            <option value="{{ id }}">{{ id }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-warning">Excluir Registro</button>
+                    </form>
+                    <form action="{{ url_for('limpar_historico') }}" method="post" onsubmit="return confirm('Tem certeza que deseja apagar TODO o histórico? Esta ação não pode ser desfeita.');" style="display: inline-block;">
+                        <button type="submit" class="btn btn-danger">🚨 Limpar Histórico</button>
+                    </form>
+                </div>
+                {% else %}
+                <p>Nenhum registro encontrado para o período selecionado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function togglePieChart(chartId) {
+            var pieCharts = document.getElementsByClassName("pie-chart-container");
+            for (var i = 0; i < pieCharts.length; i++) {
+                pieCharts[i].style.display = "none";
+            }
+            document.getElementById(chartId).style.display = "block";
+
+            var toggleButtons = document.getElementsByClassName("chart-toggle-btn");
+            for (var i = 0; i < toggleButtons.length; i++) {
+                toggleButtons[i].classList.remove("active");
+            }
+            event.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>

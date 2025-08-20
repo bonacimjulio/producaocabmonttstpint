@@ -1,0 +1,150 @@
+/* /PRODUCAO-FLASK/static/style.css */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: #eef2f5;
+    color: var(--dark-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1, h2, h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+h1 { text-align: center; margin-bottom: 20px; }
+h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+
+.card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 25px;
+}
+
+/* Abas */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+.tab-link {
+    background: none;
+    border: none;
+    padding: 15px 25px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    border-bottom: 3px solid transparent;
+}
+.tab-link.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+.tab-content { display: none; }
+
+/* Formulários */
+.form-group { margin-bottom: 15px; }
+label { display: block; font-weight: 600; margin-bottom: 5px; }
+input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+textarea { resize: vertical; }
+
+.btn, button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+.btn-success, .registro-form button { background-color: var(--success-color); }
+.btn-danger, .admin-actions .btn-danger { background-color: var(--danger-color); }
+.btn-warning { background-color: var(--warning-color); color: #000; }
+
+/* Grids */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+/* Filtros e Métricas */
+.filter-form { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+.filter-form button { background-color: var(--primary-color); }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.metric {
+    background-color: var(--light-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    border-left: 5px solid var(--primary-color);
+}
+.metric span { display: block; font-size: 0.9rem; color: var(--secondary-color); }
+.metric { font-size: 2rem; font-weight: bold; }
+.metric small { font-size: 0.8rem; font-weight: normal; color: var(--secondary-color); }
+.metric-danger { border-left-color: var(--danger-color); }
+
+/* Gráficos */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Pie chart container and Bar chart container */
+    gap: 20px;
+    align-items: center;
+}
+
+/* Chart Toggle Buttons */
+.chart-toggle-buttons {
+    grid-column: 1 / 2; /* Span across the first column */
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.chart-toggle-btn {
+    background-color: var(--secondary-color);
+    padding: 8px 15px;
+}
+.chart-container { min-height: 400px; }
+
+/* Tabela */
+.table-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+th { background-color: var(--light-color); position: sticky; top: 0; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+
+/* Ações de Admin */
+.admin-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Mensagens Flash */
+.messages { padding: 0; list-style: none; margin-bottom: 20px; }
+.message { padding: 15px; border-radius: 4px; margin-bottom: 10px; }
+.message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.message.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
